@@ -113,6 +113,7 @@ class Setting extends CActiveRecord
 			array('language, applicationName', 'required'),
 			array('pagesize', 'numerical', 'integerOnly'=>true, 'min'=>1),
 			array('whitelist', 'validateWhitelist'),
+			array('language', 'checkSessionLanguage'),
 		);
 	}
 
@@ -142,6 +143,20 @@ class Setting extends CActiveRecord
 		}
 	}
 	
+	/**
+	 * Displays a notification if the user's specified language overrides the 
+	 * selected application language (which means the language won't be changed)
+	 * @param string $attribute the attribute being validated
+	 */
+	public function checkSessionLanguage($attribute)
+	{
+		$applicationLanguage = $this->{$attribute};
+		$userLanguage = Yii::app()->languageManager->getUserLanguage();
+
+		if ($userLanguage !== null && $userLanguage !== $applicationLanguage)
+			Yii::app()->user->setFlash('info', Yii::t('Language', 'Your current user-specified language overrides the defined application language'));
+	}
+
 	/**
 	 * Returns the settings definitions
 	 * @return array
